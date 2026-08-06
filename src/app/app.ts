@@ -1,8 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms'; 
+import { TodoList } from './todo-list/todo-list';
+import { TodoFormComponent } from './todo-form/todo-form';
 
-interface Task {
+export interface Task {
   id: number;
   title: string;
   completed: boolean;
@@ -11,43 +13,31 @@ interface Task {
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, FormsModule], 
+  imports: [CommonModule, FormsModule, TodoList, TodoFormComponent], 
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
 export class AppComponent {
-  tasks: Task[] = []; 
-  newTaskTitle: string = ''; 
+  tasks = signal<Task[]>([]);
   nextId: number = 1; 
 
-  
-  addTask() {
-    if (this.newTaskTitle.trim() !== '') {
-      this.tasks.push({ 
+  addTask(newTaskTitle: string) {
+      this.tasks.set([...this.tasks(), { 
         id: this.nextId++, 
-        title: this.newTaskTitle, 
+        title: newTaskTitle, 
         completed: false 
-      });
-      this.newTaskTitle = ''; 
-    }
+      }])
   }
-
 
   toggleTask(task: Task) {
-    task.completed = !task.completed;
+    this.tasks().map((item) => {
+      if (task.id === item.id){
+        item.completed = !item.completed;
+      }
+    })
   }
-
   
   deleteTask(id: number) {
-    this.tasks = this.tasks.filter(t => t.id !== id);
-  }
-
- 
-  getActiveCount() {
-    return this.tasks.filter(t => !t.completed).length;
-  }
-
-  getCompletedCount() {
-    return this.tasks.filter(t => t.completed).length;
+    this.tasks.set(this.tasks().filter(t => t.id !== id));
   }
 }

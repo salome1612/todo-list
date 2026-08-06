@@ -1,0 +1,19 @@
+@if (tasks().length === 0){
+<p class="empty-message">
+  No tasks
+</p>
+}@else {
+<ul>
+  @for (task of tasks(); track tasks()) {
+  <li>
+    <app-todo-item [task]="task" (outputDeleteId)="deleteTask(task.id)"
+    (outputToggleTask)="toggleTask(task)"></app-todo-item>
+  </li>
+  }
+</ul>
+}
+
+<div class="stats">
+  <p>Active tasks: {{ getActiveCount() }}</p>
+  <p>Completed tasks: {{ getCompletedCount() }}</p>
+</div>
